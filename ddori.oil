@@ -1,0 +1,126 @@
+#include "implementation.oil"
+
+CPU ATMEL_AT91SAM7S256
+{
+  OS LEJOS_OSEK
+  {
+    STATUS = EXTENDED;
+    STARTUPHOOK = FALSE;
+    ERRORHOOK = FALSE;
+    SHUTDOWNHOOK = FALSE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
+    USEGETSERVICEID = FALSE;
+    USEPARAMETERACCESS = FALSE;
+    USERESSCHEDULER = FALSE;
+  };
+
+
+  /* Definition of application mode */
+  APPMODE appmode1{}; 
+
+  RESOURCE Move{
+    RESOURCEPROPERTY = STANDARD;
+  };
+
+  RESOURCE Turn{
+    RESOURCEPROPERTY = STANDARD;
+  };
+
+  /* Definition of Event Handelr Task */
+  TASK Sonar
+  {
+    AUTOSTART = TRUE
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 4;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512; /* Stack size */
+    RESOURCE = Move;
+    RESOURCE = Turn;
+  };
+  
+  /* Definition of Steering Task */
+  TASK Steering
+  {
+    AUTOSTART = TRUE
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 3;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512; /* Stack size */
+  };
+
+  /* Definition of Movement Task */
+  TASK Movement
+  {
+    AUTOSTART = TRUE
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 2;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512; /* Stack size */
+    RESOURCE = Move;
+  };
+
+  /* Definition of System Timer Count */
+  COUNTER SysTimerCnt
+  {
+    MINCYCLE = 1;
+    MAXALLOWEDVALUE = 10000;
+    TICKSPERBASE = 1; /* One tick is equal to 1msec */ 
+  };
+
+  /* Definition of Movement's Alarm */
+  ALARM Alarm_Movement
+  {
+    COUNTER = SysTimerCnt;
+    ACTION = ACTIVATETASK
+    {
+        TASK = Movement;
+    };
+    AUTOSTART = TRUE
+    {
+        ALARMTIME = 1;
+        CYCLETIME = 15; 
+        APPMODE = appmode1;
+    };
+  };
+
+  /* Definition of Steering's Alarm */
+  ALARM Alarm_Steering
+  {
+    COUNTER = SysTimerCnt;
+    ACTION = ACTIVATETASK
+    {
+        TASK = Steering;
+    };
+    AUTOSTART = TRUE
+    {
+        ALARMTIME = 1;
+        CYCLETIME = 15; 
+        APPMODE = appmode1;
+    };
+  };
+
+  ALARM Alarm_Sonar
+  {
+    COUNTER = SysTimerCnt;
+    ACTION = ACTIVATETASK
+    {
+        TASK = Sonar;
+    };
+    AUTOSTART = TRUE
+    {
+        ALARMTIME = 1;
+        CYCLETIME = 15; 
+        APPMODE = appmode1;
+    };
+  };
+};
