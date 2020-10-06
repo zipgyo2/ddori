@@ -19,27 +19,32 @@ CPU ATMEL_AT91SAM7S256
   /* Definition of application mode */
   APPMODE appmode1{}; 
 
-  RESOURCE Move{
-    RESOURCEPROPERTY = STANDARD;
+  /* Definition of MovementEvent */
+  EVENT MovementEvent{
+    MASK = AUTO;
   };
 
-  RESOURCE Turn{
-    RESOURCEPROPERTY = STANDARD;
+  /* Definition of SteeringEvent */
+  EVENT SteeringEvent{
+    MASK = AUTO;
   };
 
-  /* Definition of Event Handelr Task */
+  /* Definition of CrashEvent */
+  EVENT CrashEvent{
+    MASK = AUTO;
+  };
+
+  /* Definition of Sonar Task */
   TASK Sonar
   {
     AUTOSTART = TRUE
     {
       APPMODE = appmode1;
     };
-    PRIORITY = 4;
+    PRIORITY = 1;
     ACTIVATION = 1;
     SCHEDULE = FULL;
     STACKSIZE = 512; /* Stack size */
-    RESOURCE = Move;
-    RESOURCE = Turn;
   };
   
   /* Definition of Steering Task */
@@ -53,6 +58,7 @@ CPU ATMEL_AT91SAM7S256
     ACTIVATION = 1;
     SCHEDULE = FULL;
     STACKSIZE = 512; /* Stack size */
+    EVENT = SteeringEvent;
   };
 
   /* Definition of Movement Task */
@@ -66,7 +72,7 @@ CPU ATMEL_AT91SAM7S256
     ACTIVATION = 1;
     SCHEDULE = FULL;
     STACKSIZE = 512; /* Stack size */
-    RESOURCE = Move;
+    EVENT = MovementEvent;
   };
 
   /* Definition of System Timer Count */
@@ -77,38 +83,7 @@ CPU ATMEL_AT91SAM7S256
     TICKSPERBASE = 1; /* One tick is equal to 1msec */ 
   };
 
-  /* Definition of Movement's Alarm */
-  ALARM Alarm_Movement
-  {
-    COUNTER = SysTimerCnt;
-    ACTION = ACTIVATETASK
-    {
-        TASK = Movement;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 15; 
-        APPMODE = appmode1;
-    };
-  };
-
-  /* Definition of Steering's Alarm */
-  ALARM Alarm_Steering
-  {
-    COUNTER = SysTimerCnt;
-    ACTION = ACTIVATETASK
-    {
-        TASK = Steering;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 15; 
-        APPMODE = appmode1;
-    };
-  };
-
+  /* Definition of Sonar execution timing */
   ALARM Alarm_Sonar
   {
     COUNTER = SysTimerCnt;
